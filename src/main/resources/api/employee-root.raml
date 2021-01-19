@@ -1,0 +1,102 @@
+#%RAML 1.0
+title: Employee Lookup Process API
+
+
+types:
+  employeeMapping: !include dataTypes/Employee.raml
+  
+traits:
+ -client-id-required:
+    headers:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+
+/employees:
+  post:
+    is: [-client-id-required]
+    displayName: Create employee 
+    description: |
+      Create the employee 
+    body: 
+      application/json:
+        type: employeeMapping
+        example: !include examples/post_employees_example.yaml
+    responses:
+      201:
+        body: 
+          application/json:
+            example: |
+                {
+                  "message": "Employee created Successfullyy"
+                }
+
+        
+  /{id}:
+    uriParameters:
+      id:
+        type: string
+        example: api556
+        description: Represents the employee unique id 
+    get:
+      is: [-client-id-required]
+      displayName: Get employee  by id
+      description: Get Employee  by ID
+      responses:
+        200:        
+          body:
+            application/json:
+              type: employeeMapping
+              example: !include examples/get_employee_example.yaml
+              
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                  "message": "Resource not found"
+                }
+    patch:
+      is: [-client-id-required]
+      displayName: update Employee by ID
+      description: update Employee by ID
+      responses:
+        200:        
+          body:
+            application/json:
+              type: employeeMapping
+              example: !include examples/patch_employee_example.yaml
+              
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                  "message": "Resource not found"
+                }
+    delete:
+      is: [-client-id-required]
+      displayName: Delete Employee by ID
+      description: Delete Employee by ID
+      responses:
+        200:        
+          body:
+            application/json:
+              example:
+                {
+                  "message": "Employee deleted with id apixxx "
+                } 
+              
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                  "message": "Resource not found"
+                }
+       
+
+
+          
+                       
