@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<flow name="postFlow" doc:id="95b2e61d-bde8-4ff9-8f68-f8a56b359366" >
+		<db:insert doc:name="Insert" doc:id="c7c8aeb1-98a2-4d55-9109-e17145237cb5" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO emptable(empID,fName,lName,email,age,city,p_Manager) VALUES (:ID,:Fname,:Lname,:Email,:Age,:City,:PManager);
+
+]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+'ID': payload.id as String,
+'Fname': payload.fname as String,
+'Lname': payload.lname as String,
+'Email': payload.email as String,
+'Age': payload.age as String,
+'City': payload.city as String,
+'PManager': payload.p_manager as String
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value="Data submitted Successfully" doc:name="Set Payload" doc:id="9c887e0f-5dd4-4e90-9b04-e459385deab3" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="cbc76f59-f911-42d8-87f2-570eb353272d" >
+				<flow-ref doc:name="Flow Reference" doc:id="c16b17fb-a4a9-4df0-86be-94d889cf91b1" name="errorhandlingFlow"/>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="getFlow" doc:id="0dd9620d-6ecd-4375-aa13-8be44e843dd6" >
+		<db:select doc:name="Select" doc:id="f93080ad-8343-4d21-9fe6-3d2ec1971f44" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from emptable where empId=:ID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'ID': attributes.uriParams.'id'
+}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="73eec2b4-7c1c-4b00-bbff-c21404b7dc55" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name=" Error Continue" doc:id="26c5baf9-35db-4640-9c99-4197ad57017f" >
+				<flow-ref doc:name="Flow Reference" doc:id="d6e5aeaa-c0a3-475d-b136-e1dffd733cba" name="errorhandlingFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="patchFlow" doc:id="ce812558-549d-4484-8388-f52b0cd08703" >
+		<db:update doc:name="Update" doc:id="63306328-9513-4ede-99a8-d771d3ee6021" config-ref="Database_Config">
+			<db:sql ><![CDATA[UPDATE emptable
+SET city = :City, p_Manager = :PManager 
+WHERE empID = :ID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+'ID': attributes.uriParams.'id',
+'City': payload.city ,
+'PManager': payload.p_manager
+}]]]></db:input-parameters>
+		</db:update>
+		<set-payload value="Data Updated successfully" doc:name="Set Payload" doc:id="1b5f7600-ff4a-4195-97b0-8126551c1a4d" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name=" Error Continue" doc:id="8825905c-8da5-4031-ad12-af106a446dc2" >
+				<flow-ref doc:name="Flow Reference" doc:id="8846cab6-77f6-40d9-87c2-a0d3e259750a" name="errorhandlingFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="deleteFlow" doc:id="8e1f158f-b288-4a72-b588-ba9b37bccefc" >
+		<db:delete doc:name="Delete" doc:id="6fcfce17-4ed5-4731-8ea8-b16ed17d7698" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM emptable WHERE empID = :ID;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	'ID': attributes.uriParams.'id'
+}]]]></db:input-parameters>
+		</db:delete>
+		<set-payload value="data Deleted Successfully" doc:name="Set Payload" doc:id="d673ddb1-3a3f-4a01-ab50-8e98009dbbf5" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name=" Error Continue" doc:id="92c1443b-d6f7-4c1f-8364-6ec47e588a54" >
+				<flow-ref doc:name="Flow Reference" doc:id="bb5d1035-633c-4a3f-b449-8ec478aedd00" name="errorhandlingFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="datasyncFlow" doc:id="3fbcc3e9-d49e-4dae-b037-e40c4a255ed3" >
+		<db:listener doc:name="On Table Row" doc:id="7cd90757-c015-4385-a80c-d432bded90c5" config-ref="Database_Config" table="emptable" watermarkColumn="empID" idColumn="empID">
+			<scheduling-strategy>
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<db:select doc:name="Copy_of_Select" doc:id="d8d9c630-f76b-4025-8b08-51ae6c9c0f13" config-ref="Database_Config" >
+			<db:sql ><![CDATA[select * from emptable ;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="47fa9319-9954-4812-8815-e026df71c8d0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	employeeID: payload01.empID,
+	Fname: payload01.fName,
+	lname: payload01.lName,
+	Email: payload01.email,
+	Age: payload01.age,
+	City: payload01.city,
+	PManager: payload01.p_Manager,
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert doc:name="Upsert" doc:id="56dd6ec4-83c4-472a-8ccc-5a751c03d48a" config-ref="Salesforce_Config" objectType="myemployee" externalIdFieldName="employeeID"/>
+		<set-payload value="sync Successfull" doc:name="Set Payload" doc:id="a003caa9-6acf-40ca-a66a-25e06c126b5a" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="Error Continue" doc:id="9b7905fc-1bad-4035-af15-62bc635db43c" >
+				<flow-ref doc:name="Flow Reference" doc:id="c80dea6a-432f-4e16-aec5-f74174bcfdd9" name="errorhandlingFlowforsync" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="writeinFileFlowDatabase" doc:id="3156e45e-a0d3-44fd-a79e-4fa20777cb6e" >
+		<scheduler doc:name="Scheduler" doc:id="ea1e592e-7bc1-4389-b42d-142c9f69ac0c" >
+			<scheduling-strategy >
+				<cron expression='0 21 * * * TZ="CST"' />
+			</scheduling-strategy>
+		</scheduler>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="db8daee1-3d03-4812-8ffb-c32a300ea26a" >
+			<route >
+				<db:select doc:name="select" doc:id="ec0f4265-581d-4de2-848b-236dc77561db" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from emptable ;]]></db:sql>
+		</db:select>
+				<ee:transform doc:name="Transform Message" doc:id="7f2fc29b-a4e8-493c-ba4f-49344a420896">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<file:write doc:id="2b7b3ce7-3f7c-4fcb-ae7b-5f6c138d3cd6" config-ref="File_Config" path="D:\WallPapers\new.csv" />
+			</route>
+			<route >
+				<salesforce:retrieve type="myemployee" doc:name="Retrieve" doc:id="0683401f-c520-40d6-be7c-5c5a6cd20430" config-ref="Salesforce_Config"/>
+				<ee:transform doc:name="Transform Message" doc:id="53a3e6e1-99d7-4629-8aaa-b76da2708b77" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<file:write doc:name="Write" doc:id="b35c8ed4-97c7-4e6a-b262-3693a4ceb6d3" config-ref="File_Config" path="D:\WallPapers\new2.csv" />
+			</route>
+		</scatter-gather>
+	</flow>
+</mule>

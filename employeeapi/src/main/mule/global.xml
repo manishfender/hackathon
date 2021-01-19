@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="61e18d9f-493c-40da-aa4a-187c95e1a982" >
+		<db:my-sql-connection host="localhost" port="${secure::db.port}" user="${secure::db.user}" password="${secure::db.password}" database="${secure::db.database}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="0ca0157d-c58b-42cc-a1d7-549de65321b6" file="test.properties" />
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="1b50af03-0928-4197-96a8-5684f238b729" >
+		<salesforce:basic-connection username="${secure::sf.username}" password="${secure::sf.password}" securityToken="${secure::sf.sectoken}" />
+	</salesforce:sfdc-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="67fd0d6b-29ef-44f1-82f2-a158a07e553c" >
+		<email:smtp-connection host="${secure::em.host}" port="${secure::em.port}" user="${secure::em.user}" password="${secure::em.password}"/>
+	</email:smtp-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="1f8be51a-6fd4-4fc6-8844-c9ba4b0d0c8b" file="test.properties" key="${secure.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<api-gateway:autodiscovery apiId="16583536" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="01a1b449-20b1-4fc5-919f-d853dd328495" flowRef="employee-root-main" />
+	<file:config name="File_Config" doc:name="File Config" doc:id="34735132-bfe4-41a3-badf-060feb25e115" >
+		<file:connection workingDir="D:\WallPapers" />
+	</file:config>
+</mule>

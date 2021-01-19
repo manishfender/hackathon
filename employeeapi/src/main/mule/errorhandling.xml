@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="errorhandlingFlow" doc:id="9b475131-6843-4ed6-aabf-0dcde420ce22" >
+		<set-variable value="error.description" doc:name="ErrorVar" doc:id="3eb189b2-647c-4ed9-aa39-55452fd44063" variableName="ErrorVar"/>
+		<set-payload value='#[%dw 2.0
+output application/xml
+---
+html: {
+	body:{
+		div: "Hi team ",
+		br: [null],
+		div: "Following Error has occured during the operation performed on Database.",
+		br: [null],
+		br: [null],
+		br: [null],
+		div: vars.ErrorVar,
+		br: [null],
+		br: [null],
+		br: [null],
+		dive: "Please check the associated method and error.",
+		br: [null],
+		div: "Note: This is auto-generated mail. Please Do not Reply"
+			
+			
+	}
+}]' doc:name="Mail Template" doc:id="9265874a-effb-4809-9aef-13564a9bb880" />
+		<email:send doc:name="Send" doc:id="50adbbea-a168-49e4-831b-916e0582cfd1" config-ref="Email_SMTP" fromAddress="manish.fender@apisero.com" subject="Error Occured in LnD Automation" >
+			<email:to-addresses >
+				<email:to-address value="manish.fender@apisero.com" />
+			</email:to-addresses>
+			<email:body contentType="text/html" >
+				<email:content ><![CDATA[#[%dw 2.0
+output application/xml
+---
+payload]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="rror Mail Sent Successfully" doc:id="41cf93d4-f029-418b-b199-62d76bcc5104" message="Error Mail Sent Successfully" />
+	</flow>
+	<flow name="errorhandlingFlowforsync" doc:id="db45f708-f6c2-4071-a27a-1151219b1361" >
+		<set-variable value="error.description" doc:name="ErrorVar" doc:id="161a07f9-5e8e-48e9-9b89-0c8fcbf4116e" variableName="ErrorVar" />
+		<set-payload value='#[%dw 2.0
+output application/xml
+---
+html: {
+	body:{
+		div: "Hi team ",
+		br: [null],
+		div: "Following Error has occured during the sync of salesforce data.",
+		br: [null],
+		br: [null],
+		br: [null],
+		div: vars.ErrorVar,
+		br: [null],
+		br: [null],
+		br: [null],
+		dive: "Please check the associated method and error.",
+		br: [null],
+		div: "Note: This is auto-generated mail. Please Do not Reply"
+			
+			
+	}
+}]' doc:name="Mail Template" doc:id="fcf51d76-763a-441e-a573-47da28ebb33c" />
+		<email:send doc:name="_Send" doc:id="fdbf4dea-5d76-468c-b427-4ce08427a1e1" config-ref="Email_SMTP" fromAddress="manish.fender@apisero.com" subject="Error Occured in LnD Automation" >
+			<email:to-addresses >
+				<email:to-address value="manish.fender@apisero.com" />
+			</email:to-addresses>
+			<email:body contentType="text/html" >
+				<email:content ><![CDATA[#[%dw 2.0
+output application/xml
+---
+payload]]]></email:content>
+			</email:body>
+		</email:send>
+		<logger level="INFO" doc:name="Error Mail Sent Successfully" doc:id="ab42c728-edd6-4d9e-99c2-9b41d9795fb2" message="Error Mail Sent Successfully" />
+	</flow>
+</mule>
